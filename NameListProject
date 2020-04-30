@@ -1,0 +1,101 @@
+#This imports the GUI so that the user can interact
+#Message to user: Dont close windows, once add and insert box appears hit enterkey in add or insert text box to add to list
+#Type name in name box and hit enter in add or insert text box
+import simplegui
+
+#Making an empty list
+name_list = []
+
+#Setting up the stop variable
+stopping_text = "stop"
+
+#Setting up the add variable
+adding_text = "add"
+
+#Setting up the insert variable
+inserting_text = "insert"
+
+#Allowing number of elements to be used in the entire code
+global number_of_elements
+
+#Setting the default number of elements [Lines 19,26,50,78]
+number_of_elements = 0
+
+#Defining the name input function
+def name_input(name):
+    global Updated_name #creating the variable in the code 
+    Updated_name = "" #Setting a default value for the  variable in this function
+    number_of_elements = 0 
+    global frame2
+    name = str(name)
+    Updated_name += name 
+    number_of_elements += (len(name_list))
+    if name.lower() == stopping_text:
+        return exit()
+    else:
+        if number_of_elements <1:
+            name_list.append(Updated_name)
+            return
+        elif number_of_elements >=1:
+            frame2 = simplegui.create_frame("Insert or add", 100,100) #Creates second page where add and insert will be located
+            Instruct = frame2.add_input("Add = Add to end,Insert = Insert Specific position", Instructions_page,70) #Adds input box
+            return Updated_name
+
+frame1 = simplegui.create_frame("Name List", 100, 100)# Creates first page
+function = frame1.add_input("Insert Name", name_input,50) #Creates input box
+frame1.start() #Starts the first page up
+    
+#This function runs through after the user wishes to insert their name in a certain space, these spaces are from 1 to 2.    
+def Insert_input(Position):
+    Position = int(Position) #Setting the type of variable, integer in this case.
+    Updated_name = function.get_text() # This allows the name that will be added to the list to be updated through the text box without hitting enter.
+    number_of_elements = 0
+    if Position == 1: #Runs through if user inputs their name in index 1
+        name_list.insert(1,Updated_name)
+        number_of_elements += (len(name_list)) #Adds to the number of elements depending on number of names
+        print("There are " + str(number_of_elements) + " in the array.") # This prints out the script
+        print("They are as followed:")
+        print(list(name_list))
+        print("There are " + str(number_of_elements) + " in the array.")#Backwards Script
+        print("They are as follows in reverse order as entered:")
+        name_list.reverse() #Makes the list order in reverse
+        print(list(name_list))
+        return
+    elif Position == 2: #Runs through if user inputs their name in index 2
+        name_list.insert(2,Updated_name)
+        number_of_elements += (len(name_list))
+        print("There are " + str(number_of_elements) + " in the array.")
+        print("They are as followed:")
+        print(list(name_list))
+        print("There are " + str(number_of_elements) + " in the array.")
+        print("They are as follows in reverse order as entered:")
+        name_list.reverse()
+        print(list(name_list))
+        return 
+#This functiion is the second page which allows the user to add to the end of the list or
+#insert the name into a certain part of the list in another page.
+def Instructions_page(User_input):
+    User_input = str(User_input)
+    Updated_name = function.get_text() 
+    global frame3
+    number_of_elements = 0
+    if User_input.lower() == adding_text: #If user inputs add in any form without misspelling it will add to end
+        name_list.append(Updated_name)
+        number_of_elements += (len(name_list))
+        print("There are " + str(number_of_elements) + " in the array.")
+        print("They are as followed:")
+        print(list(name_list))
+        print("There are " + str(number_of_elements) + " in the array.")
+        print("They are as follows in reverse order as entered:")
+        name_list.reverse()
+        print(list(name_list))
+        return
+    elif User_input.lower() == inserting_text:
+        frame3 = simplegui.create_frame("Inserting into Position", 100 ,100)
+        position = frame3.add_input("What position(Number) do you want to insert the name into? 1 to 2", Insert_input,50)
+        return
+    else:
+        print("Invalid option selected, DOUG not added") #Will provide error code if not spelled correctly
+        return
+
+        
