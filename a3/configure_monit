@@ -1,0 +1,78 @@
+#!/bin/bash
+##################################################
+# PROPERTY OF B.J.S. INC.
+##################################################
+# Group 5 CIT 470
+# Brian Solomon
+# Spencer Klump
+# Johnny Rivera
+##################################################
+# This script is to install and configure monit
+# functionality to selected clients.
+##################################################
+function monit_install()  # Function to install sendmail and monit on client.
+{
+	yum -y install sendmail
+	systemctl start sendmail
+	systemctl enable sendmail
+	yum -y install epel-release
+	yum -y install monit
+}
+function monit_config() # Function to grab monitrc config file from server
+# and overwrite default config file.
+{
+	
+	wget 10.2.6.89/monitrc
+	cp -Rf ~/monitrc /etc/monitrc
+	firewall-cmd --zone=public --add-port=2812/tcp --permanent
+	firewall-cmd --reload
+	monit reload
+        sleep 3
+	echo "Preparing monit."
+	systemctl start monit
+	monit summary
+}
+function remote_logging() # Function to set client to send syslog messages to server
+{
+	sed -i '73 a local5.*	@10.2.6.89:514' /etc/rsyslog.conf
+	sed -i '15 a $ModLoad imudp' /etc/rsyslog.conf
+	sed -i '16 a $UDPServerRun 514' /etc/rsyslog.conf
+	sed -i '19 a $ModLoad imtcp' /etc/rsyslog.conf
+	sed -i '20 a $InputTCPServerRun 514' /etc/rsyslog.conf
+	systemctl restart rsyslog
+}
+function archiving() # Function to do daily archives of the syslog entries sent
+{
+	sed -i '32 a /var/log/local 5 {\n daily\n rotate 1\n } /etc/logrotate.conf
+}
+
+
+args=$1
+function main()
+{
+	if [ "$args" == "" ]; then echo "NO IP GIVEN, Please enter IP." 
+	&& exit 0; else IFS="./" read -r ip1 ip2 ip3 ip4 N <<< "$args"; fi
+	if [ "$args" == "" ]; then echo "NO IP GIVEN, Please enter IP." 
+	&& exit 0; else ip=$(($ip1 * 256 ** 2 + ip3 * 256 )); fi
+	elif [[ $(($ip % 2**(32-$N))) = 0 ]]
+	then
+	monit_install	
+	monit_config
+	remote_logging
+	archiving
+ 	sed -i 's|"@10.2.6.89:514"|'"$ip1.$ip2.$ip3.$ip4"':514"|g' /etc/rsyslog.conf
+	
+	else
+		echo "NO IP GIVEN, Please enter IP."
+	fi
+}
+main
+
+
+#monit_install
+#monit_config
+#remote_logging
+
+
+
+

@@ -1,0 +1,58 @@
+#!/bin/bash
+###############################################
+# PROPERTY OF B.J.S. INC.
+###############################################
+# Group 5 CIT 470
+# Spencer Klump
+# Brian Solomon
+# Johnny Rivera
+###############################################
+# This script is designed to test all monit 
+# processes on the client machines.
+###############################################
+
+# Disable ssh and test monit for alarm state
+function_sshoff()
+{
+	monit reload
+	systemctl start monit
+	systemctl stop sshd
+	echo "Stopping sshd."
+	#sleep 10
+	#monit summary
+}
+
+# DIsable syslog and test monit for alert condition.
+function_dissys()
+{
+	systemctl start rsyslog
+	systemctl stop rsyslog
+	echo "Stopping rsyslog"
+	#sleep 10
+	#monit summary
+}
+
+# Disable LDAP and test monit for alert.
+function_stopldap()
+{
+	echo "Disable LDAP port 389 on Server."
+	echo "Checking disabled LDAP port connectivity."
+}
+
+
+# Unmount /home to test monit alert.
+function_nfsstop()
+{
+	umount /home
+	echo "Unmounting /home NFS service."
+	sleep 25
+	monit summary
+	mount /home
+}
+
+function_sshoff
+function_dissys
+function_stopldap
+function_nfsstop
+	
+
