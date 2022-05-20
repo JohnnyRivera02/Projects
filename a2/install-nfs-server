@@ -1,0 +1,66 @@
+#!/bin/bash
+#########################################
+# PROPERTY OF B.J.S INC.
+#########################################
+# CIT 470
+# Spencer Klump
+# Johnny Rivera
+# Brian Solomon
+#########################################
+# This script mounts a logical disk and
+# sets up a nfs server with that disk
+# to allow users to access their files
+# from the server. 
+#########################################
+function disk()
+{
+	mkdir /tmp/oldhome
+	cp -r /home /tmp/oldhome
+	parted --script /dev/sda mkpart extended 10.7GB 15GB
+	parted --script /dev/sda mkpart logic 10.7GB 14GB
+	partprobe /dev/sda5
+	mkfs.xfs /dev/sda5
+	xfs_repair /dev/sda5
+	sed -i '8 a /dev/sda5	/home	xfs	defaults	0 0' /etc/fstab
+	mount /dev/sda5 /home
+	# MOVE OLD HOME BACK
+	cp -r /tmp/oldhome/* /home
+}
+function nfs()
+{
+	cp /root/a2/exports /etc/exports
+	yum -y install nfs-utils
+	exportfs -a
+	/bin/systemctl start nfs.service
+	/bin/systemctl enable nfs.service
+	cp /root/a2/client-ks.cfg /var/www/html/public_html/client-ks.cfg
+	chmod 755 /var/www/html/public_html/client-ks.cfg
+	/usr/bin/systemctl start httpd
+}
+args=$1
+function main()
+{
+	sedre="sed -i '"'8 a localhost:/home /home nfs defaults 0 0'"' /etc/fstab"
+	if [ "$args" == "" ]; then echo "NO IP GIVEN, USE -h FOR HELP" && exit 0; else IFS="./" read -r ip1 ip2 ip3 ip4 N <<< "$args"; fi
+	if [ "$args" == "" ]; then echo "NO IP GIVEN, USE -h FOR HELP" && exit 0; else ip=$(($ip1 * 256 ** 3 + $ip2 * 256 ** 2 + $ip3 * 256 )); fi	
+	if [[ "$args" == "-h" ]] || [[ "$args" == "--help" ]]
+	then
+		echo "Usage: '$0 [HOST IP]' Use the following notation to setup the NFS server for the HOST (CIDR FORMAT) e.g. 10.0.0.0/24"
+		echo "Usage: '-h | --help' This options displays the help information."
+	elif [[ $(($ip % 2**(32-$N))) = 0 ]]
+	then
+		sedrp="sed -i '"'8 a '"$ip1.$ip2.$ip3.$ip4"':/home /home nfs defaults 0 0'"' /etc/fstab"
+		sed -i 's|'"$sedre"'|'"$sedrp"'|g' /root/a2/client-ks.cfg
+		var1="sed -i '"'s|uri ldap://127.0.0.1/|uri ldap://localhost/|g'"' /etc/nslcd.conf"
+		var2="sed -i '"'s|uri ldap://127.0.0.1/|uri ldap://'"$ip1.$ip2.$ip3.$ip4"'/|g'"' /etc/nslcd.conf"
+		sed -i 's#'"$var1"'#'"$var2"'#g' /root/a2/client-ks.cfg
+		var3="sed -i '"'7 a HOST localhost'"' /etc/openldap/ldap.conf"
+		var4="sed -i '"'7 a HOST '"$ip1.$ip2.$ip3.$ip4"''"' /etc/openldap/ldap.conf"
+		sed -i 's|'"$var3"'|'"$var4"'|g' /root/a2/client-ks.cfg
+		disk
+		nfs
+	else
+		echo "INCORRECT IP FORMAT, USE -h FOR HELP."
+	fi
+}
+main

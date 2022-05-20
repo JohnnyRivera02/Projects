@@ -1,0 +1,10 @@
+###########################################
+# PROPERTY OF B.J.S. INC.
+###########################################
+# CIT 470
+# Spencer Klump
+# Johnny Rivera
+# Brian Solomon
+###########################################
+# Exports Read-write to 3 hosts
+/home 10.2.6.1/23(rw)

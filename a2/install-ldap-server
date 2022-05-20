@@ -1,0 +1,102 @@
+#!/bin/bash
+##########################################################################
+# PROPERTY OF B.J.S INC.
+##########################################################################
+# Group 5 CIT 470
+# Spencer Klump
+# Johnny Rivera
+# Brian Solomon
+##########################################################################
+#This script's purpose is to install the services related to running an
+#LDAP server with authentication kept in mind.
+##########################################################################
+function slap()
+{
+	yum -y install openldap-servers openldap-clients
+	cp /root/a2/olcDatabase={2}hdb.ldif /etc/openldap/slapd.d/cn=config/olcDatabase={2}hdb.ldif
+	#Enabling the LDAP service
+	/usr/bin/systemctl start slapd.service
+	/usr/bin/systemctl status slapd.service
+	/usr/bin/systemctl enable slapd
+}
+function conf()
+{
+	# Disable slapd to ADD
+	/usr/bin/systemctl disable slapd
+	# Getting Config
+	cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG
+	chown -R ldap:ldap /var/lib/ldap	
+}
+function nss()
+{
+	yum install -y nss_ldap
+	yum install -y migrationtools
+	cp /root/a2/migrate_common.ph /usr/share/migrationtools/migrate_common.ph
+	cp /root/a2/base.ldif /usr/share/migrationtools/base.ldif
+}
+function schema()
+{
+	cd /usr/share/migrationtools
+	/usr/bin/systemctl start slapd.service
+	ldapadd -Y EXTERNAL -H ldapi:// -f /etc/openldap/schema/core.ldif
+	ldapadd -Y EXTERNAL -H ldapi:// -f /etc/openldap/schema/cosine.ldif
+	ldapadd -Y EXTERNAL -H ldapi:// -f /etc/openldap/schema/nis.ldif
+	ldapadd -Y EXTERNAL -H ldapi:// -f /etc/openldap/schema/inetorgperson.ldif
+	/usr/bin/systemctl stop slapd.service
+	chown -R ldap:ldap /var/lib/ldap
+	# Adding Base Data
+	slapadd -v -l /usr/share/migrationtools/base.ldif
+	# Migrating Local passwords
+	/usr/share/migrationtools/migrate_passwd.pl /etc/passwd > /usr/share/migrationtools/passwd.ldif
+	slapadd -v -l /usr/share/migrationtools/passwd.ldif
+	# Migrating Local Group
+	/usr/share/migrationtools/migrate_group.pl /etc/group > /usr/share/migrationtools/group.ldif
+	slapadd -v -l /usr/share/migrationtools/group.ldif
+}
+function dira()
+{
+	# Setting up diradm
+	cd /usr/local
+	wget http://www.hits.at/diradm/diradm-1.3.tar.gz
+	tar zxvf diradm-1.3.tar.gz
+	cp /root/a2/diradm.conf /etc/diradm.conf
+}
+function firewall()
+{
+	# Configuring firewall
+	/bin/firewall-cmd --zone=public --add-port=389/tcp --permanent
+	/bin/firewall-cmd --zone=public --add-port=636/tcp --permanent
+	/bin/firewall-cmd --zone=public --add-port=2049/tcp --permanent
+	/bin/firewall-cmd --zone=public --add-port=111/tcp --permanent
+	/bin/firewall-cmd --zone=public --add-port=20048/tcp --permanent
+	/bin/firewall-cmd --zone=public --add-port=2049/udp --permanent
+	/bin/firewall-cmd --zone=public --add-port=111/udp --permanent
+	/bin/firewall-cmd --zone=public --add-port=20048/udp --permanent
+	/bin/firewall-cmd --reload
+	/bin/firewall-cmd --list-all
+}
+args=$1
+function main()
+{
+	if [ "$args" == "" ]; then echo "NO IP GIVEN, USE -h FOR HELP." && exit 0; else IFS="./" read -r ip1 ip2 ip3 ip4 N <<< "$args"; fi
+	if [ "$args" == "" ]; then echo "NO IP GIVEN, USE -h FOR HELP." && exit 0; else ip=$(($ip1 * 256 ** 3 + $ip2 * 256 ** 2 + $ip3 * 256 )); fi
+	if [[ "$args" == "-h" ]] || [[ "$args" == "--help" ]] 
+	then  
+		echo "Usage: '$0 [HOST IP]' Use the following notation to setup the LDAP server for the HOST (CIDR FORMAT) e.g. 10.0.0.0/24"
+		echo "Usage: '-h | --help' This option displays the help information."
+	elif [[ $(($ip % 2**(32-$N))) = 0 ]]
+	then
+		sed -i 's|LDAPURI="ldap://localhost:389/"|LDAPURI="ldap://'"$ip1.$ip2.$ip3.$ip4"':389/"|g' /root/a2/diradm.conf
+		slap
+		conf
+		nss	
+		schema
+		dira
+		firewall
+		chown -R ldap:ldap /var/lib/ldap
+		/usr/bin/systemctl start slapd.service
+	else
+		echo "NO IP GIVEN, USE -h FOR HELP."
+	fi
+}
+main
