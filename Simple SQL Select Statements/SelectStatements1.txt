@@ -1,0 +1,18 @@
+Johnny Rivera
+
+SELECT deptName, empFirstName, empLastName, empTitle, empHourlyWage, empEmailAddress
+FROM employee, department
+WHERE empHourlyWage >= 25
+AND empTitle LIKE '%Analyst%'
+ORDER BY deptName, empTitle ;
+
+SELECT deptName AS "Department Name",deptDesc AS "Department Description",empFirstName AS "Employee First Name",empLastName AS "Employee Last Name"
+FROM employee
+LEFT JOIN department
+ON department.deptID = employee.deptID
+ORDER BY deptName;
+
+SELECT empFirstName AS "Employee First Name", empLastName AS "Employee Last Name", empTitle AS "Employee Title", empHourlyWage*proj2empEstHours AS "Labor Cost for Employee"
+FROM employee, project, project2emp
+WHERE projectName = 'ERP System'
+ORDER BY "Labor Cost for Employee" DESC; 

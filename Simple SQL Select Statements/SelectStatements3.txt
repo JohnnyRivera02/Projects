@@ -1,0 +1,32 @@
+Johnny Rivera
+
+SELECT deptName AS "Department Name",MIN(empHourlyWage) AS "Minimum Wage", MAX(empHourlyWage) AS "Maximum Wage"
+FROM employee e, department d 
+WHERE d.deptID = e.deptID
+GROUP BY d.deptName 
+ORDER BY deptName ASC;
+
+SELECT EXTRACT(month FROM projectStartDate) AS "Month", COUNT(projectStartDate) AS "No. of Projects Started"
+FROM project
+GROUP BY EXTRACT(month FROM projectStartDate)
+ORDER BY "No. of Projects Started";
+
+SELECT unitPrice AS "Unit Price", productName AS "Product Name"
+FROM (
+ SELECT * FROM product, orderLine
+ WHERE product.productCode = orderLine.productCode 
+ ORDER BY unitPrice ASC ) 
+WHERE ROWNUM <= 10 ;
+
+SELECT empFirstName, empLastName, empTitle, deptName
+FROM employee, department
+WHERE department.deptID = employee.deptID 
+AND NOT EXISTS (
+SELECT * 
+FROM project2emp
+WHERE employee.empID = project2emp.empID) ; 
+
+
+
+
+

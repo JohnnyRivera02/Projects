@@ -1,0 +1,19 @@
+Johnny Rivera
+
+SELECT l.orderID AS "Order ID", orderDate AS "Order Date", SUM(quantity) AS "No. of Units Sold" 
+FROM order o, orderLine l
+WHERE o.orderID = l.orderID
+GROUP BY l.orderID, orderDate
+ORDER BY orderDate;
+
+SELECT e.empID AS "Emp ID", empFirstName AS "First Name", empLastName AS "Last Name" , empHourlyWage AS "Hourly Wage", ROUND(AVG(proj2empEstHours),2) AS "Average Est. Proj. Hours"
+FROM employee e, project2emp p
+WHERE e.empID = p.empID
+GROUP BY e.empID, empFirstName, empLastName, empHourlyWage
+ORDER BY proj2empEstHours DESC;
+
+SELECT deptName AS "Department Name", ROUND(AVG(empHourlyWage),2) AS "Avg. Employee Hourly Wage"
+FROM department d, employee e
+WHERE d.deptID = e.deptID
+HAVING empHourlyWage > (SELECT AVG(empHourlyWage) FROM employee)
+ORDER BY "Avg. Employee Hourly Wage" DESC;
