@@ -1,3 +1,3 @@
 # Projects
 Folder "/a3" Contains all the files nesessary to setup monitoring via web and email as well as push out syslog alerts to the central machine.
-#MORE INFORMATION IN REPORT DOCUMENT
+#MORE INFORMATION IN REPORT DOCUMENT #Mostly worked on Report and Presentation for this Product, Syntax Reviser.
