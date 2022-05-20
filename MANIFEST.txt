@@ -1,0 +1,48 @@
+##########################################################
+# PROPERTY OF B.J.S. INC.
+##########################################################
+# Group 5 CIT 470
+# Johnny Rivera
+# Brian Solomon
+# Spencer Klump
+########################################################## 
+# Provides a list of the files
+# Describes the purpose of all file within the directory 
+# and subdirectories.
+##########################################################
+
+
+# FN: apache-install
+# This file initializes the apache server and sets the
+# configurations that are needed with various functions.
+
+# FN: /config/httpd.conf
+# This file is a copy of the default /etc/httpd/conf/httpd.conf.
+# It is used to replace the default httpd.conf with the necessary 
+# server credentials
+
+# FN: /config/userdir.conf
+# This file is a copy of the default /etc/httpd/conf.d/userdir.conf
+# It is used to replace the default userdir.conf with the necessary
+# configurations for per-user directories.
+
+# FN: /config/ssl.conf
+# This file is a copy of default /etc/httpd/conf.d/ssl.conf
+# It is used to replace the default ssl.conf with the necessary
+# configurations to allow SSL connections to users.
+
+# FN: /config/certs/server.crt
+# This file's purpose is to be added to the server's SSL certificates.
+
+# FN: /config/certs/server.key
+# This private key's purpose is to be added to the server's SSL private
+# keys to be used with the certificate mentioned before. 
+
+# FN: /logs/logfile.log
+# This file is used for logging the stdout and stderr that is outputted
+# from the apache-install script.
+
+# FN: /config/login.defs
+# This file is a copy of /etc/login.defs
+# The purpose of this file is to configure any future user's home directory's
+# permissions to allow publication of websites.

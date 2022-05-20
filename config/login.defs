@@ -1,0 +1,37 @@
+###############################
+# PROPERTY OF B.J.S INC.
+###############################
+# Group 5 CIT 470
+# Johnny Rivera
+# Brian Solomon
+# Spencer Klump
+###############################
+# This script is to set the new 
+# user's home permission to
+# allow httpd to access them.
+###############################
+# *REQUIRED*
+MAIL_DIR	/var/spool/mail
+# Password aging protocols
+PASS_MAX_DAYS	99999
+PASS_MIN_DAYS	0
+PASS_MIN_LEN	5
+PASS_WARN_AGE	7
+# Min/max values for automatic uid selection in useradd
+UID_MIN                  1000
+UID_MAX                 60000
+# System accounts
+SYS_UID_MIN               201
+SYS_UID_MAX               999
+# Min/max values for automatic gid selection in groupadd
+#
+GID_MIN                  1000
+GID_MAX                 60000
+# System accounts
+SYS_GID_MIN               201
+SYS_GID_MAX               999
+CREATE_HOME	yes
+UMASK           066
+USERGROUPS_ENAB yes
+# Use SHA512 to encrypt password.
+ENCRYPT_METHOD SHA512
