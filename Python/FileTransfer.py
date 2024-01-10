@@ -28,7 +28,7 @@ def selectOption():
 # This function takes in a user-specified file extension type to download
 def allX():
     # Initiates the FTP host.
-    ftp = FTP('10.2.57.7')
+    ftp = FTP(#PLACE IP ADDRESS OF HOST)
     # Lets the user know what option was selected as well as ask for file type.
     print("Option 2 Selected.")
     fileX = str(input("Enter the type of extension the file is: "))
@@ -58,7 +58,7 @@ def allX():
 # This function asks the user for a file name that will be transferred using FTP.
 def specFile():
     # Initiates the FTP host.
-    ftp = FTP('10.2.57.7')
+    ftp = FTP(#PLACE IP ADDRESS OF HOST)
     # Lets the user know what option was selected as well as ask for file name to transfer.
     print("Option 1 Selected.")
     fileN = input("Enter the name of the file to be transfered: ")
